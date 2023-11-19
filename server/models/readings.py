@@ -12,11 +12,12 @@ class Reading(Model):
     time = columns.DateTime(primary_key=True, clustering_order="DESC")
     reading_type = columns.Text(primary_key=True, discriminator_column=True)
 
+    sensor_id = columns.Text()
+
 
 class TrackableReading(Reading):
     __abstract__ = True
 
-    sensor_id = columns.Text()
     ip_address = columns.Text()
     latitude = columns.Decimal()
     longitude = columns.Decimal()
@@ -24,7 +25,7 @@ class TrackableReading(Reading):
 
 class ZigbeeReading(Reading):
     __abstract__ = True
-    
+
     battery = columns.Decimal()
     voltage = columns.Decimal()
 
