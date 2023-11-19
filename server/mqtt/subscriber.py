@@ -1,5 +1,7 @@
 import json
-from typing import Any, List
+import logging
+from logging import Logger
+from typing import List
 
 from paho.mqtt.client import MQTTMessage, Client
 from sympy import sympify
@@ -23,7 +25,7 @@ def calc_metrics(corrections: List[Correction], cols: Columns) -> Columns:
     return cols | metrics | {'processed': True}
 
 
-def handle_reading_message(client: Client, userdata: Any, message: MQTTMessage) -> None:
+def handle_reading_message(client: Client, logger: Logger, message: MQTTMessage) -> None:
     payload: Payload = json.loads(message.payload)
 
     reading_cls, cols = parse_message(message.topic, payload)
@@ -33,6 +35,10 @@ def handle_reading_message(client: Client, userdata: Any, message: MQTTMessage) 
     corrections: List[Correction] = get_reading_corrections(device=reading.device, reading_type=reading.reading_type)
     cols = calc_metrics(corrections, cols)
     reading_cls.create(**cols)
+
+    logger.info(
+        '[Reading] insert raw and processed records {"reading_type":"%s","topic":"%s","device":"%s","time":"%s"}',
+        reading.reading_type, message.topic, reading.device, reading.time)
 
     Device.get(id=reading.device).if_exists().update(last_record=reading.time)
 
@@ -46,5 +52,6 @@ def make_client(client_id: str, topic: str, host='127.0.0.1', port=1883) -> Clie
     client.on_message = handle_reading_message
     client.connect(host, port)
     client.subscribe(topic)
+    client.user_data_set(logging.getLogger(client_id))
 
     return client
