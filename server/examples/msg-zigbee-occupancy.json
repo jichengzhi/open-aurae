@@ -1,0 +1,8 @@
+{
+  "topic": "zigbee/test-dev/test-sensor",
+  "battery": 22.3,
+  "voltage": 10.2,
+  "occupancy": true,
+  "illuminance": 23,
+  "time": "2023-11-19T18:44:19"
+}

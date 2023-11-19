@@ -1,0 +1,15 @@
+{
+  "topic": "air-quality/pms",
+  "sensor": "ptqs1005",
+  "device_id": "dev",
+  "ip_address": "127.0.0.1",
+  "latitude": 45.4,
+  "longitude": 100.3,
+  "tmp": 12.3,
+  "rh": 12.3,
+  "pm25": 12.3,
+  "tvoc": 12.3,
+  "co2": 12.3,
+  "ch2o": 12.3,
+  "time": "2023-11-19T18:44:19"
+}

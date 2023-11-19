@@ -1,0 +1,13 @@
+{
+  "topic": "zigbee/test-dev/test-sensor",
+  "battery": 22.3,
+  "voltage": 10.2,
+  "action": "start",
+  "angle": 12.44,
+  "angle_x": 12.44,
+  "angle_y": 12.44,
+  "angle_z": 12.44,
+  "angle_x_absolute": 12.44,
+  "angle_y_absolute": 23.23,
+  "time": "2023-11-19T18:44:19"
+}

@@ -1,0 +1,10 @@
+{
+  "topic": "zigbee/test-dev/test-sensor",
+  "battery": 22.3,
+  "voltage": 10.2,
+  "state": "up",
+  "power": 12.44,
+  "consumption": 23.23,
+  "tmp": 37,
+  "time": "2023-11-19T18:44:19"
+}
