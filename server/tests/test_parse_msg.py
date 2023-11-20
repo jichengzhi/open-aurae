@@ -109,7 +109,7 @@ class ParseReadingClassTest(unittest.TestCase):
         payload = {
             'sensor': 'ptqs1005',
             'power': 23.5,
-            'temperature': 22.2,
+            'tmp': 22.2,
             'contact': True,
             'occupancy': False,
             'angle_x': 33.1
@@ -121,7 +121,7 @@ class ParseReadingClassTest(unittest.TestCase):
         payload = {
             'sensor': 'pms5003st',
             'power': 23.5,
-            'temperature': 22.2,
+            'tmp': 22.2,
             'contact': True,
             'occupancy': False,
             'angle_x': 33.1
@@ -133,7 +133,7 @@ class ParseReadingClassTest(unittest.TestCase):
         payload = {
             'sensor': 'foo',
             'power': 23.5,
-            'temperature': 22.2,
+            'tmp': 22.2,
             'contact': True,
             'occupancy': False,
             'angle_x': 33.1
@@ -144,7 +144,7 @@ class ParseReadingClassTest(unittest.TestCase):
     def test_ZigbeeTempReading(self):
         payload = {
             'sensor': 'foo',
-            'temperature': 22.2,
+            'tmp': 22.2,
             'contact': True,
             'occupancy': False,
             'angle_x': 33.1

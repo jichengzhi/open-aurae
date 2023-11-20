@@ -43,7 +43,7 @@ def reading_class(msg_payload: Payload) -> ReadingClass:
             return readings.PMSReading
         case {'power': _}:
             return readings.ZigbeePowerReading
-        case {'temperature': _}:
+        case {'tmp': _}:
             return readings.ZigbeeTempReading
         case {'contact': _}:
             return readings.ZigbeeContactReading
