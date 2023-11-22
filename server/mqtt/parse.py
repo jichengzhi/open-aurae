@@ -1,8 +1,6 @@
-from datetime import datetime
-from typing import Optional, Tuple
-
-from models import readings
-from models.meta import all_column_names
+from entity import *
+from helper import parse_iso_datetime_str
+from models.meta import all_reading_column_names
 from mqtt import Columns, Payload, ReadingClass
 
 
@@ -12,13 +10,6 @@ def parse_topic(topic: str) -> Columns:
             return {'device': device, 'sensor_id': sensor_id}
         case _:
             return {}
-
-
-def parse_datetime(isodatetime: Optional[str]) -> datetime:
-    if isodatetime is None:
-        return datetime.now()
-    else:
-        return datetime.fromisoformat(isodatetime)
 
 
 def parse_alias(msg_key: str) -> str:
@@ -38,34 +29,46 @@ def parse_alias(msg_key: str) -> str:
 def reading_class(msg_payload: Payload) -> ReadingClass:
     match msg_payload:
         case {'sensor': 'ptqs1005'}:
-            return readings.PTQSReading
+            return PTQSReading
         case {'sensor': 'pms5003st'}:
-            return readings.PMSReading
+            return PMSReading
         case {'power': _}:
-            return readings.ZigbeePowerReading
+            return ZigbeePowerReading
         case {'tmp': _}:
-            return readings.ZigbeeTempReading
+            return ZigbeeTempReading
         case {'contact': _}:
-            return readings.ZigbeeContactReading
+            return ZigbeeContactReading
         case {'occupancy': _}:
-            return readings.ZigbeeOccupancyReading
+            return ZigbeeOccupancyReading
         case {'angle_x': _}:
-            return readings.ZigbeeVibrationReading
+            return ZigbeeVibrationReading
         case _:
             raise ValueError('Cannot determine reading type from message payload')
 
 
+reading_types = {
+    PTQSReading: ReadingType.ptqs1005,
+    PMSReading: ReadingType.pms5003st,
+    ZigbeePowerReading: ReadingType.zigbee_power,
+    ZigbeeTempReading: ReadingType.zigbee_temp,
+    ZigbeeContactReading: ReadingType.zigbee_contact,
+    ZigbeeOccupancyReading: ReadingType.zigbee_occupancy,
+    ZigbeeVibrationReading: ReadingType.zigbee_vibration,
+}
+
+
 def to_columns(msg_payload: Payload, reading_cls: ReadingClass) -> Columns:
-    t = parse_datetime(msg_payload.get('time'))
-    col_names = all_column_names(reading_cls)
+    time = parse_iso_datetime_str(msg_payload.get('time'), datetime.now())
+    col_names = all_reading_column_names(reading_cls)
 
     cols = {parse_alias(k.lower()): v for k, v in msg_payload.items()}
-    cols = {k: v for k, v in cols.items() if k in col_names} | {'time': t, 'date': t.date(), 'processed': False}
+    cols = {k: v for k, v in cols.items() if k in col_names} | {'time': time, 'date': time.date(), 'processed': False,
+                                                                'reading_type': reading_types[reading_cls].value}
 
     return cols
 
 
-def parse_message(topic: str, payload: Payload) -> Tuple[ReadingClass, Columns]:
+def parse_message(topic: str, payload: Payload) -> Columns:
     payload |= parse_topic(topic)
     cls = reading_class(payload)
-    return cls, to_columns(payload, cls)
+    return to_columns(payload, cls)

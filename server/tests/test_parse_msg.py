@@ -1,8 +1,9 @@
 import datetime
 import unittest
+from datetime import timezone
 
-from models.meta import all_column_names
-from models.readings import *
+from entity import *
+from models.meta import all_reading_column_names
 from mqtt.parse import parse_topic, reading_class, to_columns, parse_message
 
 
@@ -57,14 +58,14 @@ class AllReadingColumnNamesTest(unittest.TestCase):
     trackable_columns = {'ip_address', 'latitude', 'longitude'}
 
     def test_PTQSReading_columns(self):
-        actual = all_column_names(PTQSReading)
+        actual = all_reading_column_names(PTQSReading)
         expected = {'temperature', 'humidity', 'tvoc', 'pm25', 'co2',
                     'ch2o'} | self.reading_columns | self.trackable_columns
 
         self.assertEqual(expected, actual)
 
     def test_PMSReading_columns(self):
-        actual = all_column_names(PMSReading)
+        actual = all_reading_column_names(PMSReading)
         expected = {'temperature', 'humidity', 'pd05', 'pd10', 'pd25', 'pd50', 'pd100', 'pd100g', 'pm1', 'pm10', 'pm25',
                     'cf_pm1', 'cf_pm10', 'cf_pm25', 'pmv10', 'pmv25', 'pmv100', 'pmv_total', 'pmvtotal',
                     'ch2o'} | self.reading_columns | self.trackable_columns
@@ -72,31 +73,31 @@ class AllReadingColumnNamesTest(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_ZigbeeTempReading_columns(self):
-        actual = all_column_names(ZigbeeTempReading)
+        actual = all_reading_column_names(ZigbeeTempReading)
         expected = {'temperature', 'humidity'} | self.reading_columns | self.zigbee_columns
 
         self.assertEqual(expected, actual)
 
     def test_ZigbeeOccupancyReading_columns(self):
-        actual = all_column_names(ZigbeeOccupancyReading)
+        actual = all_reading_column_names(ZigbeeOccupancyReading)
         expected = {'occupancy', 'illuminance'} | self.reading_columns | self.zigbee_columns
 
         self.assertEqual(expected, actual)
 
     def test_ZigbeeContactReading_columns(self):
-        actual = all_column_names(ZigbeeContactReading)
+        actual = all_reading_column_names(ZigbeeContactReading)
         expected = {'contact'} | self.reading_columns | self.zigbee_columns
 
         self.assertEqual(expected, actual)
 
     def test_ZigbeePowerReading_columns(self):
-        actual = all_column_names(ZigbeePowerReading)
+        actual = all_reading_column_names(ZigbeePowerReading)
         expected = {'state', 'power', 'consumption', 'temperature'} | self.reading_columns | self.zigbee_columns
 
         self.assertEqual(expected, actual)
 
     def test_ZigbeeVibrationReading_columns(self):
-        actual = all_column_names(ZigbeeVibrationReading)
+        actual = all_reading_column_names(ZigbeeVibrationReading)
         expected = {'angle', 'angle_x', 'angle_y', 'angle_z', 'angle_x_absolute',
                     'angle_y_absolute', 'action'} | self.reading_columns | self.zigbee_columns
 
@@ -233,8 +234,8 @@ class ToColumnsTest(unittest.TestCase):
 
         cols = to_columns(payload, PTQSReading)
 
-        self.assertEqual(datetime.date(2023, 11, 19), cols['date'])
-        self.assertEqual(datetime.datetime(2023, 11, 19, 14, 5, 59, tzinfo=datetime.timezone.utc), cols['time'])
+        self.assertEqual(date(2023, 11, 19), cols['date'])
+        self.assertEqual(datetime(2023, 11, 19, 14, 5, 59, tzinfo=timezone.utc), cols['time'])
 
     def test_processed(self):
         payload = {}
@@ -262,7 +263,7 @@ class ToColumnsTest(unittest.TestCase):
         ip_address = '127.0.0.1'
         latitude = 45.1
         longitude = 56.8
-        time = datetime.datetime.now()
+        time = datetime.now()
 
         payload = {
             'not_exist': '!!!',
@@ -281,6 +282,7 @@ class ToColumnsTest(unittest.TestCase):
         cols = to_columns(payload, PTQSReading)
 
         expected = {
+            'reading_type': 'ptqs1005',
             'temperature': tmp,
             'humidity': rh,
             'co2': co2,
@@ -311,7 +313,7 @@ class ParseMessageTest(unittest.TestCase):
         ip_address = '127.0.0.1'
         latitude = 45.1
         longitude = 56.8
-        time = datetime.datetime.now()
+        time = datetime.now()
 
         payload = {
             'not_exist': '!!!',
@@ -328,6 +330,7 @@ class ParseMessageTest(unittest.TestCase):
         }
 
         expected = {
+            'reading_type': 'ptqs1005',
             'temperature': tmp,
             'humidity': rh,
             'co2': co2,
@@ -342,9 +345,8 @@ class ParseMessageTest(unittest.TestCase):
             'date': time.date()
         }
 
-        cls, cols = parse_message(topic, payload)
+        cols = parse_message(topic, payload)
 
-        self.assertEqual(PTQSReading, cls)
         self.assertEqual(expected, cols)
 
     def test_ZigbeeContactReading(self):
@@ -352,7 +354,7 @@ class ParseMessageTest(unittest.TestCase):
         battery = 1.2
         voltage = 2.3
         contact = False
-        time = datetime.datetime.now()
+        time = datetime.now()
 
         payload = {
             'not_exist': '!!!',
@@ -363,6 +365,7 @@ class ParseMessageTest(unittest.TestCase):
         }
 
         expected = {
+            'reading_type': 'zigbee_contact',
             'contact': contact,
             'battery': battery,
             'voltage': voltage,
@@ -373,9 +376,8 @@ class ParseMessageTest(unittest.TestCase):
             'date': time.date()
         }
 
-        cls, cols = parse_message(topic, payload)
+        cols = parse_message(topic, payload)
 
-        self.assertEqual(ZigbeeContactReading, cls)
         self.assertEqual(expected, cols)
 
 
