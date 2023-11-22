@@ -2,3 +2,7 @@ python-dotenv
 cassandra-driver
 paho-mqtt
 sympy
+ariadne
+pyjwt
+uvicorn
+quart

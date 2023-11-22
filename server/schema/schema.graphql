@@ -1,0 +1,199 @@
+scalar DateTime
+scalar Date
+
+type Device {
+    id: String!
+    name: String
+    latitude: Float
+    longitude: Float
+    last_record: DateTime
+    lastReading(processed: Boolean, readingTypes: [ReadingType!]): Reading
+    sensors: [Sensor!]!
+    editable: Boolean!
+}
+
+type Sensor {
+    device: String!
+    id: String!
+    type: String!
+    name: String
+    comments: String
+    last_record: DateTime
+}
+
+type User {
+    id: String!
+    devices: [String!]!
+}
+
+type Reading {
+    # Basic - for all types
+    device: String!
+    date: Date!
+    time: DateTime!
+    timeSeconds: Float!
+    reading_type: ReadingType!
+    sensor_id: String
+    processed: Boolean!
+    ip_address: String
+    latitude: Float
+    longitude: Float
+
+    # Common readings
+    temperature: Float
+    humidity: Float
+
+    # PTQS
+    tvoc: Float
+    pm25: Float
+    co2: Float
+    ch2o: Float
+
+    # PMS
+    pd05: Float
+    pd10: Float
+    pd25: Float
+    pd50: Float
+    pd100: Float
+    pd100g: Float
+    pm1: Float
+    pm10: Float
+    # Previously defined: pm25: Float
+    pmv10: Float
+    pmv25: Float
+    pmv100: Float
+    pmv_total: Float
+
+    # Zigbee
+    occupancy: Boolean
+    contact: Boolean
+    illuminance: Float
+
+    state: String
+    power: Float
+    voltage: Float
+    consumption: Float
+
+    angle: Float
+    angle_x: Float
+    angle_y: Float
+    angle_z: Float
+    angle_x_absolute: Float
+    angle_y_absolute: Float
+    action: String
+}
+
+enum ReadingType {
+    ptqs1005
+    pms5003st
+    zigbee_temp
+    zigbee_occupancy
+    zigbee_contact
+    zigbee_vibration
+    zigbee_power
+}
+
+enum TimeFormat {
+    ISO
+    seconds
+}
+
+input ReadingInput {
+    # Basic - for all types
+    device: String!
+    date: Date!
+    time: DateTime!
+    reading_type: ReadingType!
+    processed: Boolean!
+    ip_address: String
+    latitude: Float
+    longitude: Float
+
+    # Common readings
+    temperature: Float
+    humidity: Float
+
+    # PTQS
+    tvoc: Float
+    pm25: Float
+    co2: Float
+    ch2o: Float
+
+    # PMS
+    pd05: Float
+    pd10: Float
+    pd25: Float
+    pd50: Float
+    pd100: Float
+    pd100g: Float
+    pm1: Float
+    pm10: Float
+    # Previously defined: pm25: Float
+    pmv10: Float
+    pmv25: Float
+    pmv100: Float
+    pmv_total: Float
+
+    # Zigbee
+    occupancy: Boolean
+    contact: Boolean
+    illuminance: Float
+
+    state: String
+    power: Float
+    voltage: Float
+    consumption: Float
+
+    angle: Float
+    angle_x: Float
+    angle_y: Float
+    angle_z: Float
+    angle_x_absolute: Float
+    angle_y_absolute: Float
+    action: String
+}
+
+
+input UserInput {
+    id: String!
+    devices: [String!]!
+}
+
+input SensorInput {
+    id: String
+    type: ReadingType
+    name: String
+    comments: String
+}
+
+input DeviceInput {
+    id: String!
+    name: String
+    latitude: Float
+    longitude: Float
+    sensors: [SensorInput!]
+}
+
+type Query {
+    readings(
+        device: String!
+        processed: Boolean!
+        start: Date!
+        end: Date
+        limit: Int
+        type: ReadingType
+    ): [Reading!]!
+
+    devices: [Device!]!
+
+    device(id: String!): Device
+
+    readingTypes: [ReadingType!]!
+}
+
+type Mutation {
+    createReading(data: ReadingInput): Reading
+    upsertDevice(data: DeviceInput): Device
+    deleteDevice(id: String!): Device
+    createUser(id: String!, devices: [String!]!): User
+}
