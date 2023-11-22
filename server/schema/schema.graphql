@@ -184,6 +184,16 @@ type Query {
         type: ReadingType
     ): [Reading!]!
 
+    smoothedReadings(
+        device: String!
+        processed: Boolean!
+        start: Date!
+        metric: String!
+        end: Date
+        limit: Int
+        type: ReadingType
+    ): [Reading!]!
+
     devices: [Device!]!
 
     device(id: String!): Device
