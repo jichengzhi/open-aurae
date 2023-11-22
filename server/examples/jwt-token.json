@@ -1,0 +1,14 @@
+{
+  "iss": "https://aurae.au.auth0.com/",
+  "sub": "auth0|5e632512bd7ffd0c12b8fe5f",
+  "aud": [
+    "http://new.openaurae.org/api/"
+  ],
+  "iat": 1700627641,
+  "exp": 1700714041,
+  "azp": "NQxeftpzdDTZHj56IEZBGHKogjzc7WRs",
+  "scope": "openid profile email",
+  "permissions": [
+    "admin"
+  ]
+}

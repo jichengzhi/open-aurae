@@ -1,7 +1,7 @@
 {
   "topic": "air-quality/pms",
-  "sensor": "pms5003st",
-  "device_id": "dev",
+  "sensor": "wsd-aq",
+  "device_id": "dev-wsd",
   "ip_address": "127.0.0.1",
   "latitude": 45.4,
   "longitude": 100.3,
