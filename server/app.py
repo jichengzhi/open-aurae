@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from paho.mqtt.client import Client
 from paho.mqtt.publish import single
 from quart import Quart, request, jsonify, make_response
+from quart_cors import cors
 
 from entity import Reading
 from helper import parse_iso_date_str
@@ -18,6 +19,7 @@ from mqtt.subscriber import make_client
 from schema import schema
 
 app = Quart(__name__)
+app = cors(app)
 
 
 @app.route('/ping')

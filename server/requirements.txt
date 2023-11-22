@@ -6,4 +6,5 @@ ariadne
 pyjwt
 uvicorn
 quart
+quart-cors
 python-dateutil
