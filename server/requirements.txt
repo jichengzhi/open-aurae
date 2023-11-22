@@ -6,3 +6,4 @@ ariadne
 pyjwt
 uvicorn
 quart
+python-dateutil
