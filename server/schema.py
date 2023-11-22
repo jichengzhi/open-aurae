@@ -13,8 +13,4 @@ type_defs: str = load_schema_from_path('schema/schema.graphql')
 
 schema = make_executable_schema(type_defs, [query, device, reading, sensor, mutations, date_scalar, datetime_scalar])
 
-# uvicorn schema:application
-
-database.connect_and_sync_tables()
-
 application = GraphQL(schema)

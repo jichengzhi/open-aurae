@@ -79,7 +79,7 @@ logging.root.setLevel(logging.INFO)
 
 load_dotenv('.env')
 
-database.connect_and_sync_tables()
+database.connect_and_sync_tables(cassandra_seed=os.environ['CASSANDRA_SEED'])
 
 broker_addr = os.environ['MQTT_BROKER']
 

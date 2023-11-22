@@ -1,0 +1,23 @@
+services:
+  cassandra:
+    image: cassandra:5
+    ports:
+      - "9042:9042"
+    volumes:
+      - /data/aurae-data:/var/lib/cassandra
+    environment:
+      CASSANDRA_CLUSTER_NAME: Aurae Cluster
+      CASSANDRA_NUM_TOKENS: 128
+  mqtt:
+    image: eclipse-mosquitto:latest
+    ports:
+      - "1883:1883"
+  server:
+    build:
+      dockerfile: server/Dockerfile
+      context: server
+    environment:
+      CASSANDRA_SEED: cassandra
+      MQTT_BROKER: mqtt
+      CQLENG_ALLOW_SCHEMA_MANAGEMENT: 1
+    env_file: server/.env
