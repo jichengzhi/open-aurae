@@ -40,7 +40,7 @@ def get_readings(device: str,
     q = Reading.objects.filter(device=device, date__gte=start, date__lte=end, processed=processed).allow_filtering()
 
     if type is not None:
-        q = q.filter(reading_type=type)
+        q = q.filter(reading_type=reading_type)
 
     q = q.all()
 

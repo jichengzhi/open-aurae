@@ -33,7 +33,7 @@ def _upsert_sensor(device: str, data: Dict[str, Any]):
 @mutations.field("upsertDevice")
 def resolve_upsert_device(_, __, data: Dict[str, Any]):
     if "sensors" in data:
-        database.delete_sensors_by_device_id(data['device'])
+        database.delete_sensors_by_device_id(data['id'])
 
         for sensor in data["sensors"]:
             _upsert_sensor(data["id"], sensor)

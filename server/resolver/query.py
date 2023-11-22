@@ -5,6 +5,7 @@ from enum import StrEnum
 from typing import Optional, Set
 
 import jwt
+import numpy as np
 from ariadne import QueryType
 from graphql import GraphQLResolveInfo
 
@@ -29,10 +30,28 @@ async def resolve_readings(
         type: ReadingType = None,
         limit: Optional[int] = None,
 ):
-    if type is None:
-        type = ReadingType.all()
-
     return database.get_readings(device, start, processed, end, type, limit)
+
+
+@query.field("smoothedReadings")
+async def resolve_smoothed(_, __, metric, start, end, device, processed, type):
+    readings = database.get_readings(device, start, processed, end, type)
+
+    if len(readings) == 0:
+        return []
+
+    y = np.array([float(getattr(x, metric)) for x in readings])
+
+    window = 20
+    smoothed = np.convolve(y, np.ones((window,)) / window, mode="valid")
+
+    print(len(smoothed), len(readings))
+
+    for idx, x in enumerate(readings):
+        if idx >= len(smoothed):
+            break
+        setattr(x, metric, smoothed[idx])
+    return readings
 
 
 class Role(StrEnum):
