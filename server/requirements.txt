@@ -9,3 +9,4 @@ quart
 quart-cors
 python-dateutil
 numpy
+pydantic

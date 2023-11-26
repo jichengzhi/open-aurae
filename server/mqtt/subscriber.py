@@ -17,6 +17,7 @@ from mqtt.parse import parse_message
 
 
 def calc_metric(correction: Correction, cols: Columns) -> float:
+    # TODO substitute null?
     formula = sympify(correction.expression)
     return float(formula.subs(cols.items()).evalf())
 

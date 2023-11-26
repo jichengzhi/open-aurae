@@ -1,8 +1,10 @@
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, date
 from enum import StrEnum
-from typing import List, Set
+from typing import List, Set, Literal
+
+from pydantic import BaseModel
 
 
 @dataclass
@@ -43,14 +45,6 @@ class Device:
     last_record: datetime
 
 
-@dataclass
-class Correction:
-    device: str
-    reading_type: str
-    metric: str
-    expression: str
-
-
 class ReadingType(StrEnum):
     ptqs1005 = 'ptqs1005'
     pms5003st = 'pms5003st'
@@ -66,31 +60,35 @@ class ReadingType(StrEnum):
 
 
 @dataclass
-class Reading:
+class Correction:
+    device: str
+    reading_type: ReadingType
+    metric: str
+    expression: str
+
+
+class Reading(BaseModel):
     device: str
     date: date
     processed: bool
     time: datetime
     sensor_id: str
-    reading_type: ReadingType = field(kw_only=True)
+    reading_type: ReadingType
 
 
-@dataclass
 class TrackableReading(Reading):
     ip_address: str
     latitude: float
     longitude: float
 
 
-@dataclass
 class ZigbeeReading(Reading):
     battery: float
     voltage: float
 
 
-@dataclass
 class PTQSReading(TrackableReading):
-    reading_type: str = field(kw_only=True, default=ReadingType.ptqs1005)
+    reading_type: Literal[ReadingType.ptqs1005]
     temperature: float
     humidity: float
     tvoc: float
@@ -99,9 +97,8 @@ class PTQSReading(TrackableReading):
     ch2o: float
 
 
-@dataclass
 class PMSReading(TrackableReading):
-    reading_type: str = field(kw_only=True, default=ReadingType.pms5003st)
+    reading_type: Literal[ReadingType.pms5003st]
     temperature: float
     humidity: float
     pd05: float
@@ -124,30 +121,26 @@ class PMSReading(TrackableReading):
     ch2o: float
 
 
-@dataclass
 class ZigbeeTempReading(ZigbeeReading):
-    reading_type: str = field(kw_only=True, default=ReadingType.zigbee_temp)
+    reading_type: Literal[ReadingType.zigbee_temp]
 
     temperature: float
     humidity: float
 
 
-@dataclass
 class ZigbeeOccupancyReading(ZigbeeReading):
-    reading_type: str = field(kw_only=True, default=ReadingType.zigbee_occupancy)
+    reading_type: Literal[ReadingType.zigbee_occupancy]
     occupancy: bool
     illuminance: float
 
 
-@dataclass
 class ZigbeeContactReading(ZigbeeReading):
-    reading_type: str = field(kw_only=True, default=ReadingType.zigbee_contact)
+    reading_type: Literal[ReadingType.zigbee_contact]
     contact: bool
 
 
-@dataclass
 class ZigbeePowerReading(ZigbeeReading):
-    reading_type: str = field(kw_only=True, default=ReadingType.zigbee_power)
+    reading_type: Literal[ReadingType.zigbee_power]
 
     state: str
     power: float
@@ -155,9 +148,8 @@ class ZigbeePowerReading(ZigbeeReading):
     temperature: float
 
 
-@dataclass
 class ZigbeeVibrationReading(ZigbeeReading):
-    reading_type: str = field(kw_only=True, default=ReadingType.zigbee_vibration)
+    reading_type: Literal[ReadingType.zigbee_vibration]
 
     angle: float
     angle_x: float
@@ -166,3 +158,14 @@ class ZigbeeVibrationReading(ZigbeeReading):
     angle_x_absolute: float
     angle_y_absolute: float
     action: str
+
+
+if __name__ == '__main__':
+    class Foo(BaseModel):
+        name: str | None
+        age: int | None
+
+
+    foo = Foo.model_validate_json('{"name": "bar", "age": null}')
+
+    print(foo)
