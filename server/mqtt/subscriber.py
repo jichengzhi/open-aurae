@@ -1,7 +1,8 @@
 import json
 import logging
+from json import JSONDecodeError
 from logging import Logger
-from typing import List
+from typing import List, Optional
 
 from paho.mqtt.client import MQTTMessage, Client
 from sympy import sympify
@@ -25,8 +26,19 @@ def calc_metrics(corrections: List[Correction], cols: Columns) -> Columns:
     return cols | metrics | {'processed': True}
 
 
+def deserialize_json(json_str: str) -> Optional[Payload]:
+    try:
+        return json.loads(json_str)
+    except JSONDecodeError:
+        return None
+
+
 def handle_reading_message(client: Client, logger: Logger, message: MQTTMessage) -> None:
-    payload: Payload = json.loads(message.payload)
+    payload: Payload = deserialize_json(message.payload)
+
+    if payload is None:
+        logger.error('[Reading] payload is not JSON: %s', message.payload)
+        return
 
     cols = parse_message(message.topic, payload)
 
@@ -43,11 +55,9 @@ def handle_reading_message(client: Client, logger: Logger, message: MQTTMessage)
         '[Reading] insert raw and processed records {"reading_type":"%s","topic":"%s","device":"%s","time":"%s"}',
         reading.reading_type, message.topic, reading.device, reading.time)
 
-    # TODO if device not exists
-    Device.get(id=reading.device).if_exists().update(last_record=reading.time)
+    Device(id=reading.device).if_exists().update(last_record=reading.time)
 
-    # TODO if sensor not exists
-    Sensor.get(id=reading.sensor_id).if_exists().update(last_record=reading.time)
+    Sensor(id=reading.sensor_id).if_exists().update(last_record=reading.time)
 
 
 def make_client(client_id: str, topic: str, host='127.0.0.1', port=1883) -> Client:
