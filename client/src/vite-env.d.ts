@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+// <reference types="vite/client" />
 interface ImportMetaEnv {
   VITE_REACT_APP_API_URL: string;
   VITE_AUTH0_CLIENT_ID: string;

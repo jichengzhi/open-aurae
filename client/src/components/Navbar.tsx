@@ -1,4 +1,21 @@
-import { useAuth0 } from '@auth0/auth0-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from '@/components/ui/navigation-menu';
+import { User, useAuth0 } from '@auth0/auth0-react';
+import {
+  HoverCard,
+  HoverCardArrow,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@radix-ui/react-hover-card';
+
+import { Card, CardDescription, CardTitle } from '@/components/ui/card.tsx';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -17,19 +34,21 @@ function NavLink(
   props: React.ComponentProps<typeof NavTitle> & { to: string }
 ): React.JSX.Element {
   return (
-    <Link to={props.to} className="no-underline px-4">
-      <NavTitle>{props.children}</NavTitle>
-    </Link>
+    <NavigationMenuLink asChild>
+      <Link to={props.to} className="no-underline">
+        <NavTitle>{props.children}</NavTitle>
+      </Link>
+    </NavigationMenuLink>
   );
 }
 
-function NavLoginLink(): React.JSX.Element {
+function NavLoginButton(): React.JSX.Element {
   const { loginWithRedirect } = useAuth0();
 
   return <NavTitle onClick={() => loginWithRedirect()}>Log In</NavTitle>;
 }
 
-function NavLogoutLink(): React.JSX.Element {
+function NavLogoutButton(): React.JSX.Element {
   const { logout } = useAuth0();
 
   return (
@@ -42,27 +61,6 @@ function NavLogoutLink(): React.JSX.Element {
     </NavTitle>
   );
 }
-
-function NavLogLink(): React.JSX.Element {
-  const { user, isAuthenticated } = useAuth0();
-
-  if (isAuthenticated) {
-    return (
-      <>
-        <NavLogoutLink />
-        <img
-          aria-description="user avatar"
-          src={user!.picture}
-          alt={user!.name}
-          className="w-10 h-10 rounded-full"
-        />
-      </>
-    );
-  } else {
-    return <NavLoginLink />;
-  }
-}
-
 function Logo(): React.JSX.Element {
   return (
     <h1 className="text-gray-700 text-4xl">
@@ -72,27 +70,81 @@ function Logo(): React.JSX.Element {
   );
 }
 
-export default function Navbar(): React.JSX.Element {
+function ProfileCard({ user }: { user: User }) {
   return (
-    <nav className="container flex items-center justify-between mx-auto font-sans h-24">
-      <NavLink to="/" className="justify-self-start">
+    <Card className="p-4">
+      <CardTitle className="font-normal text-base">{user.name}</CardTitle>
+      <CardDescription>{user.email}</CardDescription>
+    </Card>
+  );
+}
+
+export default function Navbar(): React.JSX.Element {
+  const { user, isAuthenticated } = useAuth0();
+
+  return (
+    <NavigationMenu className="flex-col sm:flex-row min-w-[90%] m-auto justify-between h-24 font-sans">
+      <NavLink to="/">
         <Logo />
       </NavLink>
 
-      <NavLink to="/admin">Admin</NavLink>
+      <NavigationMenuList
+        id="foo"
+        className="min-w-full justify-between content-center gap-5 lg:gap-20"
+      >
+        <NavigationMenuItem>
+          <NavLink to="/admin">Admin</NavLink>
+        </NavigationMenuItem>
 
-      <div className="dropdown group block relative">
-        <NavTitle>Projects</NavTitle>
-        <div className="dropdown-menu group-hover:block hidden absolute -left-1/2 w-56 px-5 pb-5 h-auto bg-gray-100 shadow-lg rounded-xl">
-          <NavLink to="/building658">Building 658</NavLink>
+        <NavigationMenu>
+          {/* https://github.com/shadcn-ui/ui/issues/418#issuecomment-1728277834 */}
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>
+              <NavTitle>Projects</NavTitle>
+            </NavigationMenuTrigger>
+            <NavigationMenuContent className="w-full p-4">
+              <ul className="w-[180px] flex flex-col justify-around gap-8">
+                <li>
+                  <NavLink to="/building658">Building 658</NavLink>
+                </li>
 
-          <NavLink to="/building87">Building 87</NavLink>
+                <li>
+                  <NavLink to="/building87">Building 87</NavLink>
+                </li>
 
-          <NavLink to="/monash">Monash Campus</NavLink>
-        </div>
-      </div>
+                <li>
+                  <NavLink to="/monash">Monash Campus</NavLink>
+                </li>
+              </ul>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenu>
 
-      <NavLogLink />
-    </nav>
+        {isAuthenticated && user ? (
+          <>
+            <NavigationMenuItem>
+              <NavLogoutButton />
+            </NavigationMenuItem>
+
+            <HoverCard>
+              <HoverCardTrigger>
+                <Avatar className="block bg-white">
+                  <AvatarImage src={user.picture} />
+                  <AvatarFallback>{user.name}</AvatarFallback>
+                </Avatar>
+              </HoverCardTrigger>
+              <HoverCardContent>
+                <HoverCardArrow className="fill-white" />
+                <ProfileCard user={user} />
+              </HoverCardContent>
+            </HoverCard>
+          </>
+        ) : (
+          <NavigationMenuItem>
+            <NavLoginButton />
+          </NavigationMenuItem>
+        )}
+      </NavigationMenuList>
+    </NavigationMenu>
   );
 }

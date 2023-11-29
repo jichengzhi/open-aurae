@@ -1,12 +1,13 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { Auth0Provider } from '@auth0/auth0-react';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Home from './Home.tsx';
-import './index.css';
 import RootLayout from './RootLayout.tsx';
-import { auth0Config, backendApiUrl } from './utils/helper.tsx';
+import './index.css';
+import { auth0Config, graphqlApiUrl } from './utils/helper.tsx';
 
 const router = createBrowserRouter([
   {
@@ -22,7 +23,7 @@ const router = createBrowserRouter([
 ]);
 
 const client = new ApolloClient({
-  uri: backendApiUrl(),
+  uri: graphqlApiUrl(),
   cache: new InMemoryCache(),
 });
 
