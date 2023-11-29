@@ -1,6 +1,4 @@
 function requiredEnvVar(name: string): string {
-  console.log(import.meta.env);
-
   const value = import.meta.env[name];
 
   if (!value) {
