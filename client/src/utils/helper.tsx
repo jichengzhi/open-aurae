@@ -1,20 +1,14 @@
-function requiredEnvVar(name: string): string {
-  const value = import.meta.env[name];
-
-  if (!value) {
-    throw new Error(`env variable ${name} is required!`);
-  }
-
-  return value;
-}
-
 export function auth0Config(): { domain: string; clientId: string } {
   return {
-    domain: requiredEnvVar('VITE_AUTH0_DOMAIN'),
-    clientId: requiredEnvVar('VITE_AUTH0_CLIENT_ID'),
+    domain: process.env.VITE_AUTH0_DOMAIN!,
+    clientId: process.env.VITE_AUTH0_CLIENT_ID!,
   };
 }
 
 export function backendApiUrl(): string {
-  return requiredEnvVar('VITE_AUTH0_DOMAIN');
+  return process.env.VITE_REACT_APP_API_URL!;
+}
+
+export function graphqlApiUrl(): string {
+  return backendApiUrl() + '/graphql';
 }
